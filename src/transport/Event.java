@@ -1,3 +1,5 @@
+package transport;
+
 /**
  * A class which represents an event and is used in the Timeline class
  */

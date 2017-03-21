@@ -1,3 +1,5 @@
+package transport;
+
 /**
  * A class whoch represents an application message (which is simply a string)
  */
