@@ -55,7 +55,7 @@ public class Timeline
     }
     
     /**
-     * Creating a send event.First generating a random enumber using the exponential distribution with average timeBetweenSends and then adding the event.
+     * Creating a send event.First generating a random number using the exponential distribution with average timeBetweenSends and then adding the event.
      */
 
     public void createSendEvent()
