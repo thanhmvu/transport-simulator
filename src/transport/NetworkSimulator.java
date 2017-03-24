@@ -8,19 +8,24 @@ public class NetworkSimulator
     public static int DEBUG;
     /**
      * Main method with follwing variables
+     * 
+     * 
      * @param args[0] file with messages
      * @param args[1] time between messages
      * @param args[2] loss probability
-     * @param args[3] curroption probability
+     * @param args[3] corruption probability
+     * @param args[4] windows size
+     * @param args[5] Go-back-N vs TCP 0 means go­back­n,1 means TCP
+     * @param args[6] Tracing
      */
     public static void main(String[] args)
     {
         //current event to process
         Event currentEvent;
         //checking to see if enough arguements have been sent    
-        if(args.length<5)
+        if(args.length<7)
         {
-            System.out.println("need at least 5 arguements");
+            System.out.println("need at least 7 arguements");
             System.exit(1);
         }
         //reading in file line by line. Each line will be one message
