@@ -25,8 +25,8 @@ public class NetworkSimulator {
         //current event to process
         Event currentEvent;
         //checking to see if enough arguements have been sent    
-        if (args.length < 7) {
-            System.out.println("need at least 7 arguements");
+        if (args.length < 5) {
+            System.out.println("need at least 5 arguements");
             System.exit(1);
         }
         //reading in file line by line. Each line will be one message
