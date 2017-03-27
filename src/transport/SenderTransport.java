@@ -9,8 +9,10 @@ public class SenderTransport
 {
     private NetworkLayer nl;
     private Timeline tl;
-    private int n;
+    private int n; // window size
     private boolean usingTCP;
+    private int segNum; // seg num of the next packet
+    private int timeout; 
 
     public SenderTransport(NetworkLayer nl){
         this.nl=nl;
@@ -24,6 +26,8 @@ public class SenderTransport
      */
     public void initialize()
     {
+        segNum = 0;
+        timeout = 15; // avg RTT = 10 time units
     }
     
     /**
@@ -36,6 +40,21 @@ public class SenderTransport
      */
     public void sendMessage(Message msg)
     {
+        if(!usingTCP){
+            // wrap message in packet
+            int ackNum = 0;
+            Packet p = new Packet(msg, segNum, ackNum, 0);
+            p.setChecksum();
+            
+            segNum ++;
+            
+            // pass packet to network layer
+            nl.sendPacket(p, Event.RECEIVER);
+
+            // start timer, if timer wasn't already started
+            // if it was, this method does nothing
+            tl.startTimer(timeout);
+        }
     }
     
     /**

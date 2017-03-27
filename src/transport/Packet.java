@@ -14,11 +14,15 @@ public class Packet {
 
     Random ran; //random number generator
 
+    /*========= 
+    Thanh: may be we should use setChecksum to get the checksum 
+    instead of letting the transport layer to pass it in
+    =========*/
     public Packet(Message msg, int seqnum, int acknum, int checksum) {
         this.msg = msg;
         this.seqnum = seqnum;
         this.acknum = acknum;
-        this.checksum = checksum;
+        this.checksum = checksum;  // Thanh: Maybe this.setChecksum() instead?
         this.ran = new Random();
     }
 

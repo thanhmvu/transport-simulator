@@ -106,10 +106,11 @@ public class Timeline
             System.out.println("inserting future timer event at time: " + timeSoFar + " for " +  increment);
 
     }
+    
     /**
      * Kills timer and sets timerPointer to null
      */
-
+    
     public void stopTimer()
     {
         if(timerPointer==null)
