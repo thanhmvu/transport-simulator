@@ -24,7 +24,7 @@ public class Packet {
         this.msg = msg;
         this.seqnum = seqnum;
         this.acknum = acknum;
-        this.setChecksum();  // Thanh: Maybe this.setChecksum() instead?
+        this.setChecksum(); 
         this.ran = new Random();
     }
 
@@ -44,28 +44,30 @@ public class Packet {
      * Sets the checksum field to have a valid value
      * Checksum is set to be the sum of seq, ack and payload
      */
-    public void setChecksum() {
-        checksum = 0;
-        String payload = msg.getMessage();
-        for (char c: payload.toCharArray()) {
-            checksum += (int) c;
-        }
-        checksum += seqnum + acknum;
+    public final void setChecksum() {
+        checksum = calculateChecksum();
     }
 
     /**
      * Uses the checksum field to check if the packet is corrupt or not.
      * @return true if the packet is corrupted, false if not
      */
-    public boolean isCorrupt() {
-        int newChecksum = 0;
+    public boolean isCorrupt() {        
+        return checksum == this.calculateChecksum();
+    }
+    
+    /**
+     * Implementation of check sum calculation
+     * @return an int that is the sum of seqnum, acknum and payload
+     */
+    private int calculateChecksum() {
+        int temp = 0;
         String payload = msg.getMessage();
         for (char c: payload.toCharArray()) {
-            newChecksum += (int) c;
+            temp += (int) c;
         }
-        newChecksum += seqnum + acknum;
-        
-        return checksum == newChecksum;
+        temp += seqnum + acknum;
+        return temp;
     }
 
     /**
