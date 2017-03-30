@@ -1,5 +1,6 @@
 package transport;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.io.FileReader;
 
@@ -17,9 +18,10 @@ public class NetworkSimulator {
      * @param args[3] corruption probability
      * @param args[4] windows size
      * @param args[5] Go-back-N vs TCP 0 means go­back­n,1 means TCP
-     * @param args[6] Tracing: 0 will turn this off. 1 prints out times for sending, receiving and timers expiring events. 
-     * 2 prints out when a message is corrupted and lost. Greater than 2 will display messages 
-     * that are related to the event timeline.
+     * @param args[6] Tracing: 0 will turn this off. 1 prints out times for
+     * sending, receiving and timers expiring events. 2 prints out when a
+     * message is corrupted and lost. Greater than 2 will display messages that
+     * are related to the event timeline.
      */
     public static void main(String[] args) {
         //current event to process
@@ -95,18 +97,17 @@ public class NetworkSimulator {
 
     //reading in file line by line.
     public static ArrayList<String> readFile(String fileName) {
-        ArrayList<String> messageArray = new ArrayList<String>();
-        Scanner sc = null;
+        ArrayList<String> messageArray = new ArrayList<>();
         try {
-            sc = new Scanner(new FileReader(fileName));
-        } catch (Exception e) {
+            Scanner sc = new Scanner(new FileReader(fileName));
+            while (sc.hasNextLine()) {
+                messageArray.add(sc.nextLine());
+            }
+            return messageArray;
+        } catch (FileNotFoundException e) {
             System.out.println("Could not open file " + e);
         }
-
-        while (sc.hasNextLine()) {
-            messageArray.add(sc.nextLine());
-        }
-        return messageArray;
+        return new ArrayList<>();
     }
 
 }

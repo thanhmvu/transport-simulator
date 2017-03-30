@@ -43,8 +43,7 @@ public class SenderTransport
         if(!usingTCP){
             // wrap message in packet
             int ackNum = 0;
-            Packet p = new Packet(msg, segNum, ackNum, 0);
-            p.setChecksum();
+            Packet p = new Packet(msg, segNum, ackNum);
             
             segNum ++;
             

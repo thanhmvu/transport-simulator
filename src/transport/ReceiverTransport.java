@@ -1,35 +1,52 @@
 package transport;
 
-
 /**
  * A class which represents the receiver transport layer
  */
-public class ReceiverTransport
-{
+public class ReceiverTransport {
+
     private ReceiverApplication ra;
     private NetworkLayer nl;
     private boolean usingTCP;
 
-    public ReceiverTransport(NetworkLayer nl){
+    public ReceiverTransport(NetworkLayer nl) {
         ra = new ReceiverApplication();
-        this.nl=nl;
+        this.nl = nl;
         initialize();
     }
 
-    public void initialize()
-    {
+    /**
+     * This routine will be called once, before any of your other receiver
+     * routines are called. It can be used to do any required initialization.
+     */
+    public void initialize() {
+        if (!usingTCP) {
+            
+        } else {
+            
+        }
     }
 
-    public void receiveMessage(Packet pkt)
-    {
+    /**
+     * This routine will be called whenever a packet sent from the sender
+     * arrives at the receiver
+     *
+     * @param pkt the (possibly corrupted) packet sent from the sender.
+     */
+    public void receiveMessage(Packet pkt) {
+        if (!usingTCP) {
+            
+        } else {
+            
+        }
     }
 
-    public void setProtocol(int n)
-    {
-        if(n>0)
-            usingTCP=true;
-        else
-            usingTCP=false;
+    public void setProtocol(int n) {
+        if (n > 0) {
+            usingTCP = true;
+        } else {
+            usingTCP = false;
+        }
     }
 
 }

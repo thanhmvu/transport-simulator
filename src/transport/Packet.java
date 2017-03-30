@@ -18,11 +18,11 @@ public class Packet {
     Thanh: may be we should use setChecksum to get the checksum 
     instead of letting the transport layer to pass it in
     =========*/
-    public Packet(Message msg, int seqnum, int acknum, int checksum) {
+    public Packet(Message msg, int seqnum, int acknum) {
         this.msg = msg;
         this.seqnum = seqnum;
         this.acknum = acknum;
-        this.checksum = checksum;  // Thanh: Maybe this.setChecksum() instead?
+        this.setChecksum();  // Thanh: Maybe this.setChecksum() instead?
         this.ran = new Random();
     }
 
@@ -38,9 +38,16 @@ public class Packet {
         return msg;
     }
 
+    /**
+     * Sets the checksum field to have a valid value
+     */
     public void setChecksum() {
     }
 
+    /**
+     * Uses the checksum field to check if the packet is corrupt or not.
+     * @return true if the packet is corrupted, false if not
+     */
     public boolean isCorrupt() {
         return false;
     }
