@@ -53,7 +53,7 @@ public class Packet {
      * @return true if the packet is corrupted, false if not
      */
     public boolean isCorrupt() {        
-        return checksum == this.calculateChecksum();
+        return checksum != this.calculateChecksum();
     }
     
     /**
