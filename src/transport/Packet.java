@@ -14,10 +14,12 @@ public class Packet {
 
     Random ran; //random number generator
 
-    /*========= 
-    Thanh: may be we should use setChecksum to get the checksum 
-    instead of letting the transport layer to pass it in
-    =========*/
+    /**
+     * Create a packet to be sent
+     * @param msg The message to be wrapped
+     * @param seqnum The sequence number of the message
+     * @param acknum 
+     */
     public Packet(Message msg, int seqnum, int acknum) {
         this.msg = msg;
         this.seqnum = seqnum;
@@ -40,8 +42,15 @@ public class Packet {
 
     /**
      * Sets the checksum field to have a valid value
+     * Checksum is set to be the sum of seq, ack and payload
      */
     public void setChecksum() {
+        checksum = 0;
+        String payload = msg.getMessage();
+        for (char c: payload.toCharArray()) {
+            checksum += (int) c;
+        }
+        checksum += seqnum + acknum;
     }
 
     /**
@@ -49,7 +58,14 @@ public class Packet {
      * @return true if the packet is corrupted, false if not
      */
     public boolean isCorrupt() {
-        return false;
+        int newChecksum = 0;
+        String payload = msg.getMessage();
+        for (char c: payload.toCharArray()) {
+            newChecksum += (int) c;
+        }
+        newChecksum += seqnum + acknum;
+        
+        return checksum == newChecksum;
     }
 
     /**
