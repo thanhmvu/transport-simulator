@@ -46,30 +46,29 @@ public class SenderTransport
      */
     public void sendMessage(Message msg)
     {
+        debug_print("Requested to send: "+ msg.getMessage());
+        
         if(usingTCP){ //TPC
             
         } else { //GBN
             if(nextSeqNum < base + n){ // Send message if the window is not full
-                int ackNum = 0;
-                Packet p = new Packet(msg, nextSeqNum, ackNum);
-                nl.sendPacket(p, Event.RECEIVER);
-                
                 // start timer if needed
                 if(this.base == this.nextSeqNum){
                     tl.startTimer(timeout);
-                    System.out.println("Started timer");
                 }
+                
+                int ackNum = 0;
+                Packet p = new Packet(msg, nextSeqNum, ackNum);
+                nl.sendPacket(p, Event.RECEIVER);
                 nextSeqNum ++;
                 
                 // buffer unacked msg
                 unackedBuffer.add(msg);
-                
-                System.out.println("Sent packet to Network Layer");
             } 
             else { // Buffer message if full
                 buffer.add(msg); 
                 
-                System.out.println("Buffered message");
+                debug_print("Buffered message");
                 // message should be sent when base increases
             }
         }
@@ -151,5 +150,8 @@ public class SenderTransport
         else
             usingTCP=false;
     }
-
+    
+    public void debug_print(String s){
+        if (NetworkSimulator.DEBUG == 3) System.out.println("[ST] "+s);
+    }
 }

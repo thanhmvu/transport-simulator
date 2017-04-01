@@ -66,7 +66,7 @@ public class Timeline {
         tmp = (tmp == 0) ? 0.00001 : tmp;
         int time = (int) (timeBetweenSends * (-Math.log(tmp)) + timeSoFar);
         if (NetworkSimulator.DEBUG > 2) {
-            System.out.println("inserting fututre send event at " + timeSoFar + " with time: " + time);
+            System.out.println("[Tl] Inserting future send event at " + timeSoFar + " with send time: " + time);
         }
         events.add(new Event(time, Event.MESSAGESEND, Event.SENDER));
     }
@@ -86,7 +86,7 @@ public class Timeline {
 
         if (NetworkSimulator.DEBUG > 2) {
             String tmp = (to == Event.SENDER) ? "sender" : "receiver";
-            System.out.println("inserting futurre arrive event at " + timeSoFar + " with time: " + lastArrivalTime + "to :" + tmp);
+            System.out.println("[Tl] Inserting future arrive event at " + timeSoFar + " with arrive time: " + lastArrivalTime + " to: " + tmp);
         }
         events.add(new Event(lastArrivalTime, Event.MESSAGEARRIVE, to, pkt));
 
@@ -100,13 +100,13 @@ public class Timeline {
      */
     public void startTimer(int increment) {
         if (timerPointer != null) {
-            System.out.println("Timer is allready on!");
+            System.out.println("[Tl] Timer is allready on!");
             return;
         }
         timerPointer = new Event(timeSoFar + increment, Event.TIMER, Event.SENDER);
         events.add(timerPointer);
         if (NetworkSimulator.DEBUG > 2) {
-            System.out.println("inserting future timer event at time: " + timeSoFar + " for " + increment);
+            System.out.println("[Tl] Inserting future timer event at " + timeSoFar + " for time out at " + (timeSoFar + increment));
         }
 
     }
@@ -116,7 +116,7 @@ public class Timeline {
      */
     public void stopTimer() {
         if (timerPointer == null) {
-            System.out.println("Timer is not on!");
+            System.out.println("[Tl] Timer is not on!");
             return;
         }
 

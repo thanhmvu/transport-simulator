@@ -65,27 +65,27 @@ public class NetworkSimulator {
             if (currentEvent.getType() == Event.MESSAGESEND) {
                 sa.sendMessage();
                 if (DEBUG > 0) {
-                    System.out.println("Message sent from sender to receiver at time " + currentEvent.getTime());
+                    System.out.println("\n[NS] Message sent from sender to receiver at time " + currentEvent.getTime());
                 }
             } //if event is a message arrival
             else if (currentEvent.getType() == Event.MESSAGEARRIVE) {
                 //if it arrives at the sender, call the get packet from the sender
                 if (currentEvent.getHost() == Event.SENDER) {
                     if (DEBUG > 0) {
-                        System.out.println("Message arriving from receiver to sender at time " + currentEvent.getTime());
+                        System.out.println("\n[NS] Message arriving from receiver to sender at time " + currentEvent.getTime());
                     }
                     st.receiveMessage(currentEvent.getPacket());
                 } //if it arrives at the receiver, call the get packet from the receiver
                 else {
                     if (DEBUG > 0) {
-                        System.out.println("Message arriving from sender to receiver at time " + currentEvent.getTime());
+                        System.out.println("\n[NS] Message arriving from sender to receiver at time " + currentEvent.getTime());
                     }
                     rt.receiveMessage(currentEvent.getPacket());
                 }
             } //If event is an expired timer, call the timerExpired method in the sender transport.
             else if (currentEvent.getType() == Event.TIMER) {
                 if (DEBUG > 0) {
-                    System.out.println("Timer expired at time " + currentEvent.getTime());
+                    System.out.println("\n[NS] Timer expired at time " + currentEvent.getTime());
                 }
 
                 tl.stopTimer();
