@@ -1,5 +1,6 @@
 package transport;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 /**
  * A class which represents the receiver transport layer
@@ -14,6 +15,7 @@ public class SenderTransport
     private int base;
     private int timeout; 
     private LinkedList<Message> buffer;
+    private LinkedList<Message> unackedBuffer;
     
     public SenderTransport(NetworkLayer nl){
         this.nl=nl;
@@ -31,6 +33,7 @@ public class SenderTransport
         nextSeqNum = 1;
         timeout = 15; // avg RTT = 10 time units
         buffer = new LinkedList<Message>();
+        unackedBuffer = new LinkedList<Message>();
     }
     
     /**
@@ -50,14 +53,22 @@ public class SenderTransport
                 int ackNum = 0;
                 Packet p = new Packet(msg, nextSeqNum, ackNum);
                 nl.sendPacket(p, Event.RECEIVER);
+                
+                // start timer if needed
                 if(this.base == this.nextSeqNum){
                     tl.startTimer(timeout);
                     System.out.println("Started timer");
                 }
                 nextSeqNum ++;
+                
+                // buffer unacked msg
+                unackedBuffer.add(msg);
+                
                 System.out.println("Sent packet to Network Layer");
-            } else { // Buffer message
+            } 
+            else { // Buffer message if full
                 buffer.add(msg); 
+                
                 System.out.println("Buffered message");
                 // message should be sent when base increases
             }
@@ -73,17 +84,30 @@ public class SenderTransport
      */
     public void receiveMessage(Packet pkt)
     {
-        if(!pkt.isCorrupt()){
-            base = pkt.getAcknum() + 1;
-            if(base == this.nextSeqNum){
-                tl.stopTimer();
+        //GBN
+        if(!usingTCP && !pkt.isCorrupt() && pkt.getAcknum() >= base){
+            // update unacked messages
+            for(int i = base; i <= pkt.getAcknum(); i++){
+                unackedBuffer.removeFirst();
             }
             
-            // Send previously buffered message if there is any
+            // move base + stop timer
+            base = pkt.getAcknum() + 1;
+            tl.stopTimer();
+            if(base != this.nextSeqNum){ 
+                // restart timer if there is still unacked message
+                tl.startTimer(timeout);
+            }
+            
+            // Send buffered messages if there is any
             int opening = base + n - nextSeqNum;
             for(int i = 0; i < Math.min(opening, buffer.size()); i++){
                 this.sendMessage(buffer.pop());
             }
+        }
+        //TCP
+        if(usingTCP){
+            // check for 2 duplicate acks
         }
     }
     
