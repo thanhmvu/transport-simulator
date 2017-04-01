@@ -1,7 +1,6 @@
 package transport;
 
-
-import java.util.ArrayList;
+import java.util.LinkedList;
 /**
  * A class which represents the receiver transport layer
  */
@@ -14,7 +13,7 @@ public class SenderTransport
     private int nextSeqNum; // seg num of the next packet
     private int base;
     private int timeout; 
-    private ArrayList<Message> buffer;
+    private LinkedList<Message> buffer;
     
     public SenderTransport(NetworkLayer nl){
         this.nl=nl;
@@ -31,7 +30,7 @@ public class SenderTransport
         base = 1;
         nextSeqNum = 1;
         timeout = 15; // avg RTT = 10 time units
-        buffer = new ArrayList<Message>();
+        buffer = new LinkedList<Message>();
     }
     
     /**
@@ -53,10 +52,13 @@ public class SenderTransport
                 nl.sendPacket(p, Event.RECEIVER);
                 if(this.base == this.nextSeqNum){
                     tl.startTimer(timeout);
+                    System.out.println("Started timer");
                 }
                 nextSeqNum ++;
+                System.out.println("Sent packet to Network Layer");
             } else { // Buffer message
                 buffer.add(msg); 
+                System.out.println("Buffered message");
                 // message should be sent when base increases
             }
         }
@@ -71,6 +73,18 @@ public class SenderTransport
      */
     public void receiveMessage(Packet pkt)
     {
+        if(!pkt.isCorrupt()){
+            base = pkt.getAcknum() + 1;
+            if(base == this.nextSeqNum){
+                tl.stopTimer();
+            }
+            
+            // Send previously buffered message if there is any
+            int opening = base + n - nextSeqNum;
+            for(int i = 0; i < Math.min(opening, buffer.size()); i++){
+                this.sendMessage(buffer.pop());
+            }
+        }
     }
     
     /**
