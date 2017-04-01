@@ -47,7 +47,12 @@ public class NetworkSimulator {
         //setting protocol type
         st.setProtocol(Integer.parseInt(args[5]));
         rt.setProtocol(Integer.parseInt(args[5]));
-        DEBUG = Integer.parseInt(args[6]);
+        
+        DEBUG = 0;
+        if(args.length >= 6){
+            DEBUG = Integer.parseInt(args[6]);
+        }
+        
         //this loop will run while there are events in the priority queue
         while (true) {
             //get next event
