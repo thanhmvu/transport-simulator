@@ -119,6 +119,19 @@ public class SenderTransport
      */
     public void timerExpired()
     { 
+        if(usingTCP){
+        
+        } else { //GBN
+            tl.startTimer(timeout);
+            // resend all unacked messages
+            int seqnum = base;
+            for(Message msg: unackedBuffer){
+                int ackNum = 0;
+                Packet p = new Packet(msg, seqnum, ackNum);
+                nl.sendPacket(p, Event.RECEIVER);
+                seqnum ++;
+            }
+        }
     }
 
     public void setTimeLine(Timeline tl)
