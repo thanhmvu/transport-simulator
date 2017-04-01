@@ -48,18 +48,13 @@ public class SenderTransport
             
         } else { //GBN
             if(nextSeqNum < base + n){ // Send message if the window is not full
-                // wrap message in packet
                 int ackNum = 0;
                 Packet p = new Packet(msg, nextSeqNum, ackNum);
-
-                nextSeqNum ++;
-
-                // pass packet to network layer
                 nl.sendPacket(p, Event.RECEIVER);
-
-                // start timer, if timer wasn't already started
-                // if it was, this method does nothing
-                tl.startTimer(timeout);
+                if(this.base == this.nextSeqNum){
+                    tl.startTimer(timeout);
+                }
+                nextSeqNum ++;
             } else { // Buffer message
                 buffer.add(msg); 
                 // message should be sent when base increases
