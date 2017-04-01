@@ -13,6 +13,7 @@ public class SenderTransport
     private boolean usingTCP;
     private int segNum; // seg num of the next packet
     private int timeout; 
+    private ArrayList<String> buffer;
 
     public SenderTransport(NetworkLayer nl){
         this.nl=nl;
@@ -28,6 +29,7 @@ public class SenderTransport
     {
         segNum = 0;
         timeout = 15; // avg RTT = 10 time units
+        buffer = new ArrayList<String>();
     }
     
     /**
@@ -40,7 +42,9 @@ public class SenderTransport
      */
     public void sendMessage(Message msg)
     {
-        if(!usingTCP){
+        if(usingTCP){ //TPC
+            
+        } else { //GBN
             // wrap message in packet
             int ackNum = 0;
             Packet p = new Packet(msg, segNum, ackNum);
