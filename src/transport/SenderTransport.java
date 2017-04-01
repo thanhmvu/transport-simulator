@@ -11,10 +11,11 @@ public class SenderTransport
     private Timeline tl;
     private int n; // window size
     private boolean usingTCP;
-    private int segNum; // seg num of the next packet
+    private int nextSeqNum; // seg num of the next packet
+    private int base;
     private int timeout; 
-    private ArrayList<String> buffer;
-
+    private ArrayList<Message> buffer;
+    
     public SenderTransport(NetworkLayer nl){
         this.nl=nl;
         initialize();
@@ -27,9 +28,10 @@ public class SenderTransport
      */
     public void initialize()
     {
-        segNum = 0;
+        base = 1;
+        nextSeqNum = 1;
         timeout = 15; // avg RTT = 10 time units
-        buffer = new ArrayList<String>();
+        buffer = new ArrayList<Message>();
     }
     
     /**
@@ -45,18 +47,23 @@ public class SenderTransport
         if(usingTCP){ //TPC
             
         } else { //GBN
-            // wrap message in packet
-            int ackNum = 0;
-            Packet p = new Packet(msg, segNum, ackNum);
-            
-            segNum ++;
-            
-            // pass packet to network layer
-            nl.sendPacket(p, Event.RECEIVER);
+            if(nextSeqNum < base + n){ // Send message if the window is not full
+                // wrap message in packet
+                int ackNum = 0;
+                Packet p = new Packet(msg, nextSeqNum, ackNum);
 
-            // start timer, if timer wasn't already started
-            // if it was, this method does nothing
-            tl.startTimer(timeout);
+                nextSeqNum ++;
+
+                // pass packet to network layer
+                nl.sendPacket(p, Event.RECEIVER);
+
+                // start timer, if timer wasn't already started
+                // if it was, this method does nothing
+                tl.startTimer(timeout);
+            } else { // Buffer message
+                buffer.add(msg); 
+                // message should be sent when base increases
+            }
         }
     }
     
