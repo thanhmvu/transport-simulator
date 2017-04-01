@@ -46,7 +46,7 @@ public class SenderTransport
      */
     public void sendMessage(Message msg)
     {
-        debug_print("Requested to send: "+ msg.getMessage());
+//        debug_print("Requested to send: "+ msg.getMessage());
         
         if(usingTCP){ //TPC
             

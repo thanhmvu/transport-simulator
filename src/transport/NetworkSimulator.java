@@ -63,10 +63,10 @@ public class NetworkSimulator {
             }
             //if event is time to send a message, call the send message function of the sender application.   
             if (currentEvent.getType() == Event.MESSAGESEND) {
-                sa.sendMessage();
                 if (DEBUG > 0) {
-                    System.out.println("\n[NS] Message sent from sender to receiver at time " + currentEvent.getTime());
+                    System.out.println("\n[NS] Message sending from sender to receiver at time " + currentEvent.getTime());
                 }
+                sa.sendMessage();
             } //if event is a message arrival
             else if (currentEvent.getType() == Event.MESSAGEARRIVE) {
                 //if it arrives at the sender, call the get packet from the sender

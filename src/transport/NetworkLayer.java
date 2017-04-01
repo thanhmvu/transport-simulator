@@ -37,18 +37,18 @@ public class NetworkLayer {
     public void sendPacket(Packet pkt, int to) {
         if (ran.nextDouble() < lossProbability) {
             if (NetworkSimulator.DEBUG > 1) {
-                System.out.println("[NL] Packet seq:" + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " lost");
+                System.out.println("[NL] Packet seq: " + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " lost");
             }
             return;
         }
         if (ran.nextDouble() < corrProbability) {
             if (NetworkSimulator.DEBUG > 1) {
-                System.out.println("[NL] Packet seq:" + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " corruped");
+                System.out.println("[NL] Packet seq: " + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " corruped");
             }
             pkt.corrupt();
         }
         if (NetworkSimulator.DEBUG > 1) {
-            System.out.println("[NL] Packet seq:" + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " sent");
+            System.out.println("[NL] Packet seq: " + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " sent");
         }
         tl.createArriveEvent(pkt, to);
     }
