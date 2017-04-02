@@ -57,7 +57,7 @@ public class SenderTransport
                     tl.startTimer(timeout);
                 }
                 
-                int ackNum = 0;
+                int ackNum = -1;
                 Packet p = new Packet(msg, nextSeqNum, ackNum);
                 nl.sendPacket(p, Event.RECEIVER);
                 nextSeqNum ++;
@@ -101,6 +101,7 @@ public class SenderTransport
             // Send buffered messages if there is any
             int opening = base + n - nextSeqNum;
             for(int i = 0; i < Math.min(opening, buffer.size()); i++){
+                debug_print("Sending buffered message in the queue");
                 this.sendMessage(buffer.pop());
             }
         }
@@ -125,7 +126,7 @@ public class SenderTransport
             // resend all unacked messages
             int seqnum = base;
             for(Message msg: unackedBuffer){
-                int ackNum = 0;
+                int ackNum = -1;
                 Packet p = new Packet(msg, seqnum, ackNum);
                 nl.sendPacket(p, Event.RECEIVER);
                 seqnum ++;

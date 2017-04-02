@@ -113,7 +113,7 @@ public class ReceiverTransport {
      * Send the highest cumulative ack
      */
     private void sendAck() {
-        Packet ackPkt = new Packet(new Message("ACK"), cumulativeAckNum, 1);
+        Packet ackPkt = new Packet(new Message("ACK"), -1, cumulativeAckNum);
         nl.sendPacket(ackPkt, Event.SENDER);
     }
 
