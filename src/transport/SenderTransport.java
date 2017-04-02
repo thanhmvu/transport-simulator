@@ -31,7 +31,7 @@ public class SenderTransport
     {
         base = 0;
         nextSeqNum = 0;
-        timeout = 15; // avg RTT = 10 time units
+        timeout = 20; // avg RTT = 10 time units
         buffer = new LinkedList<Message>();
         unackedBuffer = new LinkedList<Message>();
     }
