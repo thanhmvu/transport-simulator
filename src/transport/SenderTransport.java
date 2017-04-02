@@ -16,6 +16,7 @@ public class SenderTransport
     private int timeout; 
     private LinkedList<Message> buffer;
     private LinkedList<Message> unackedBuffer;
+    private int cntDupAcks;
     
     public SenderTransport(NetworkLayer nl){
         this.nl=nl;
@@ -34,6 +35,7 @@ public class SenderTransport
         timeout = 20; // avg RTT = 10 time units
         buffer = new LinkedList<Message>();
         unackedBuffer = new LinkedList<Message>();
+        cntDupAcks = 0;
     }
     
     /**
@@ -44,34 +46,26 @@ public class SenderTransport
      * 
      * msg - message contains data to be sent to the other side (B-side)
      */
-    public void sendMessage(Message msg)
-    {
-//        debug_print("Requested to send: "+ msg.getMessage());
-        
-        if(usingTCP){ //TPC
-            
-        } else { //GBN
-            if(nextSeqNum < base + n){ // Send message if the window is not full
-                // start timer if needed
-                if(this.base == this.nextSeqNum){
-                    tl.startTimer(timeout);
-                }
-                
-                int ackNum = -1;
-                Packet p = new Packet(msg, nextSeqNum, ackNum);
-                nl.sendPacket(p, Event.RECEIVER);
-                nextSeqNum ++;
-                
-                // buffer unacked msg
-                unackedBuffer.add(msg);
-            } 
-            else { // Buffer message if full
-                buffer.add(msg); 
-                
-                debug_print("Buffered message");
-                debug_print("Current buffered messages: "+buffer.size());
-                // message should be sent when base increases
+    public void sendMessage(Message msg) {
+        if (nextSeqNum < base + n) { // Send message if the window is not full
+            // start timer if needed
+            if (this.base == this.nextSeqNum) {
+                tl.startTimer(timeout);
             }
+
+            int ackNum = -1;
+            Packet p = new Packet(msg, nextSeqNum, ackNum);
+            nl.sendPacket(p, Event.RECEIVER);
+            nextSeqNum++;
+
+            // buffer unacked msg
+            unackedBuffer.add(msg);
+        } else { // Buffer message if full
+            buffer.add(msg);
+
+            debug_print("Buffered message");
+            debug_print("Current buffered messages: " + buffer.size());
+            // message should be sent when base increases
         }
     }
     
@@ -91,7 +85,7 @@ public class SenderTransport
                 unackedBuffer.removeFirst();
             }
             
-            // move base + stop timer
+            // move base + stop/ restart timer
             base = pkt.getAcknum() + 1;
             tl.stopTimer();
             if(base != this.nextSeqNum){ 
@@ -108,12 +102,57 @@ public class SenderTransport
         }
         //TCP
         if(usingTCP){
-            // check for 2 duplicate acks
+            receiveMessageTCP(pkt);
+        }
+    }
+    
+    /**
+     * This routine will be called whenever 
+     * a TCP packet sent from the receiver arrives at the sender. 
+     * Packet is sent from the receiver (B-side) and is possibly corrupted.
+     * 
+     * pkt - the receiving packet
+     */
+    public void receiveMessageTCP(Packet pkt) {
+        if (!pkt.isCorrupt()) {
+            if (pkt.getAcknum() > base) { // valid ack
+                // update unacked messages
+                for (int i = base; i < pkt.getAcknum(); i++) {
+                    unackedBuffer.removeFirst();
+                }
+
+                // update variables 
+                base = pkt.getAcknum();
+                cntDupAcks = 0;
+                tl.stopTimer();
+                
+                // restart if there is unacked message
+                if (base != this.nextSeqNum) {
+                    tl.startTimer(timeout); 
+                }
+
+                // send buffered messages if there is any
+                flushUnsentMsg();
+                
+            } else { // duplicate ack
+                cntDupAcks++;
+                if (cntDupAcks == 3){ // fast retransmit
+                    resendFirstMsg();
+                }
+            }
         }
     }
     
     public int openWins(){
         return (base + n - nextSeqNum);
+    }
+    
+    public void flushUnsentMsg() {
+        while (!buffer.isEmpty() && openWins() > 0) {
+            debug_print("Current buffered messages: " + buffer.size() + ", open windows: " + openWins());
+            debug_print("Sending buffered message in the queue");
+            this.sendMessage(buffer.pop());
+        }
     }
     
     /**
@@ -125,7 +164,8 @@ public class SenderTransport
     public void timerExpired()
     { 
         if(usingTCP){
-        
+            resendFirstMsg();
+            
         } else { //GBN
             tl.startTimer(timeout);
             // resend all unacked messages
@@ -137,6 +177,16 @@ public class SenderTransport
                 seqnum ++;
             }
         }
+    }
+    
+    private void resendFirstMsg() {
+        // reset variables
+        cntDupAcks = 0;
+        tl.startTimer(timeout);
+        
+        // resend unacked message with smallest seqnum
+        Packet p = new Packet(unackedBuffer.getFirst(), base, -1);
+        nl.sendPacket(p, Event.RECEIVER);
     }
 
     public void setTimeLine(Timeline tl)
@@ -157,7 +207,7 @@ public class SenderTransport
             usingTCP=false;
     }
     
-    public void debug_print(String s){
+    private void debug_print(String s){
         if (NetworkSimulator.DEBUG == 3) System.out.println("[ST] "+s);
     }
 }
