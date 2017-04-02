@@ -126,11 +126,7 @@ public class ReceiverTransport {
      * @param n if n > 0, use TCP, else use Go-back-N
      */
     public void setProtocol(int n) {
-        if (n > 0) {
-            usingTCP = true;
-        } else {
-            usingTCP = false;
-        }
+        usingTCP = n > 0;
         
         if (!usingTCP) {
             initializeGBN();
