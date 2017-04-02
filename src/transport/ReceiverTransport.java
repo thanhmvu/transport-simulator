@@ -76,7 +76,7 @@ public class ReceiverTransport {
     private void receiveMessageGBN(Packet pkt) {
         if (!pkt.isCorrupt()) {
             if (pkt.getSeqnum() == cumulativeAckNum + 1) {
-                cumulativeAckNum++;
+               this.sendPacketToApp(pkt);
             }
             sendAck();
         }
@@ -90,13 +90,11 @@ public class ReceiverTransport {
     private void receiveMessageTCP(Packet pkt) {
         if (!pkt.isCorrupt()) {
             if (pkt.getSeqnum() == cumulativeAckNum) {
-                cumulativeAckNum++;
-
-                //PENDING?
-                //FILL GAP
+                this.sendPacketToApp(pkt);
+                //fill in the gap
                 for (Packet p : buffer) {
                     if (p.getSeqnum() == cumulativeAckNum) {
-                        cumulativeAckNum++;
+                        this.sendPacketToApp(pkt);
                         buffer.remove(p);
                     } else {
                         break;
@@ -110,6 +108,16 @@ public class ReceiverTransport {
     }
 
     /**
+     * Receive packet and send to app (also increase cumulative ACK num)
+     *
+     * @param pkt The packet that arrives in order
+     */
+    private void sendPacketToApp(Packet pkt) {
+        cumulativeAckNum++;
+        ra.receiveMessage(pkt.getMessage());
+    }
+
+    /**
      * Send the highest cumulative ack
      */
     private void sendAck() {
@@ -119,6 +127,7 @@ public class ReceiverTransport {
 
     /**
      * Set whether protocol is Go-back-N or TCP
+     *
      * @param n if n > 0, use TCP, else use Go-back-N
      */
     public void setProtocol(int n) {
