@@ -69,6 +69,7 @@ public class SenderTransport
                 buffer.add(msg); 
                 
                 debug_print("Buffered message");
+                debug_print("Current buffered messages: "+buffer.size());
                 // message should be sent when base increases
             }
         }
@@ -99,8 +100,8 @@ public class SenderTransport
             }
             
             // Send buffered messages if there is any
-            int opening = base + n - nextSeqNum;
-            for(int i = 0; i < Math.min(opening, buffer.size()); i++){
+            while(!buffer.isEmpty() && buffer.size() <= openWins()){
+                debug_print("Current buffered messages: "+buffer.size()+", open windows: "+openWins());
                 debug_print("Sending buffered message in the queue");
                 this.sendMessage(buffer.pop());
             }
@@ -109,6 +110,10 @@ public class SenderTransport
         if(usingTCP){
             // check for 2 duplicate acks
         }
+    }
+    
+    public int openWins(){
+        return (base + n - nextSeqNum);
     }
     
     /**

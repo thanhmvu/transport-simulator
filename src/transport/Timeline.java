@@ -100,7 +100,7 @@ public class Timeline {
      */
     public void startTimer(int increment) {
         if (timerPointer != null) {
-            System.out.println("[Tl] Timer is allready on!");
+            System.out.println("Timer is allready on!");
             return;
         }
         timerPointer = new Event(timeSoFar + increment, Event.TIMER, Event.SENDER);
@@ -116,7 +116,7 @@ public class Timeline {
      */
     public void stopTimer() {
         if (timerPointer == null) {
-            System.out.println("[Tl] Timer is not on!");
+            System.out.println("Timer is not on!");
             return;
         }
 
