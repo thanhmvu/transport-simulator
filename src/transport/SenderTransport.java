@@ -29,8 +29,8 @@ public class SenderTransport
      */
     public void initialize()
     {
-        base = 1;
-        nextSeqNum = 1;
+        base = 0;
+        nextSeqNum = 0;
         timeout = 15; // avg RTT = 10 time units
         buffer = new LinkedList<Message>();
         unackedBuffer = new LinkedList<Message>();
