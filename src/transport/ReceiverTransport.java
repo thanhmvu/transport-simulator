@@ -18,7 +18,6 @@ public class ReceiverTransport {
     public ReceiverTransport(NetworkLayer nl) {
         ra = new ReceiverApplication();
         this.nl = nl;
-        initialize();
     }
 
     /**
@@ -26,11 +25,7 @@ public class ReceiverTransport {
      * routines are called. It can be used to do any required initialization.
      */
     public final void initialize() {
-        if (!usingTCP) {
-            initializeGBN();
-        } else {
-            initializeTCP();
-        }
+
     }
 
     /**
@@ -135,6 +130,12 @@ public class ReceiverTransport {
             usingTCP = true;
         } else {
             usingTCP = false;
+        }
+        
+        if (!usingTCP) {
+            initializeGBN();
+        } else {
+            initializeTCP();
         }
     }
 
