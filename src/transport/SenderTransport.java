@@ -100,7 +100,7 @@ public class SenderTransport
             }
             
             // Send buffered messages if there is any
-            while(!buffer.isEmpty() && buffer.size() <= openWins()){
+            while(!buffer.isEmpty() && openWins() > 0){
                 debug_print("Current buffered messages: "+buffer.size()+", open windows: "+openWins());
                 debug_print("Sending buffered message in the queue");
                 this.sendMessage(buffer.pop());
