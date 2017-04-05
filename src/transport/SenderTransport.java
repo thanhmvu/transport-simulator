@@ -202,11 +202,7 @@ public class SenderTransport {
     }
 
     public void setProtocol(int n) {
-        if (n > 0) {
-            usingTCP = true;
-        } else {
-            usingTCP = false;
-        }
+        usingTCP = n > 0;
     }
     
     private void debug_print(String s){
