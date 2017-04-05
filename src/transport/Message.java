@@ -17,6 +17,5 @@ public class Message {
 
     public void corruptMessage() {
         x = String.valueOf(x.charAt(0) + 1) + x.substring(1);
-
     }
 }
