@@ -74,8 +74,22 @@ public class SenderTransport {
      * @param pkt the receiving packet
      */
     public void receiveMessage(Packet pkt) {
-        //GBN
-        if (!usingTCP && !pkt.isCorrupt() && pkt.getAcknum() >= base) {
+        if (usingTCP) {
+            receiveMessageTCP(pkt);
+        } else {
+            receiveMessageGBN(pkt);
+        }
+    }
+    
+    /**
+     * This routine will be called whenever 
+     * a GBN packet sent from the receiver arrives at the sender. 
+     * Packet is sent from the receiver (B-side) and is possibly corrupted.
+     * 
+     * pkt - the receiving packet
+     */
+    public void receiveMessageGBN(Packet pkt) {
+        if (!pkt.isCorrupt() && pkt.getAcknum() >= base) {
             // update unacked messages
             for (int i = base; i <= pkt.getAcknum(); i++) {
                 unackedBuffer.removeFirst();
@@ -90,15 +104,7 @@ public class SenderTransport {
             }
 
             // Send buffered messages if there is any
-            while (!buffer.isEmpty() && openWins() > 0) {
-                debug_print("Current buffered messages: " + buffer.size() + ", open windows: " + openWins());
-                debug_print("Sending buffered message in the queue");
-                this.sendMessage(buffer.pop());
-            }
-        }
-        //TCP
-        if (usingTCP) {
-            receiveMessageTCP(pkt);
+            flushUnsentMsg();
         }
     }
 
@@ -138,7 +144,7 @@ public class SenderTransport {
             }
         }
     }
-
+    
     public int openWins() {
         return (base + n - nextSeqNum);
     }
@@ -160,17 +166,20 @@ public class SenderTransport {
     public void timerExpired() {
         if (usingTCP) {
             resendFirstMsg();
-
         } else { //GBN
-            tl.startTimer(timeout);
-            // resend all unacked messages
-            int seqnum = base;
-            for (Message msg : unackedBuffer) {
-                int ackNum = -1;
-                Packet p = new Packet(msg, seqnum, ackNum);
-                nl.sendPacket(p, Event.RECEIVER);
-                seqnum++;
-            }
+            resendAllMsgs();
+        }
+    }
+    
+    private void resendAllMsgs() {
+        tl.startTimer(timeout);
+        // resend all unacked messages
+        int seqnum = base;
+        for (Message msg : unackedBuffer) {
+            int ackNum = -1;
+            Packet p = new Packet(msg, seqnum, ackNum);
+            nl.sendPacket(p, Event.RECEIVER);
+            seqnum++;
         }
     }
 
@@ -199,10 +208,8 @@ public class SenderTransport {
             usingTCP = false;
         }
     }
-
-    private void debug_print(String s) {
-        if (NetworkSimulator.DEBUG == 3) {
-            System.out.println("[ST] " + s);
-        }
+    
+    private void debug_print(String s){
+        if (NetworkSimulator.DEBUG > 1) System.out.println("[ST] "+s);
     }
 }
