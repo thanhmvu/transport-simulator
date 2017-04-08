@@ -52,7 +52,7 @@ public class ExperimentController {
         float lossProb = 0.10f;
         float corrProb = 0.10f;
         int winSize = 4;
-        int tracing = 1;
+        int tracing = 2;
 
         // Test Go-back-N
         for (int i = 0; i < numExp; i++) {

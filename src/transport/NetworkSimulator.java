@@ -56,8 +56,9 @@ public class NetworkSimulator {
      * sending, receiving and timers expiring events. 2 prints out when a
      * message is corrupted and lost. Greater than 2 will display messages that
      * are related to the event timeline.
+     * @return The total time taken to run the simulation
      */
-    public void run(String fileName, int timeBetweenMsg,
+    public int run(String fileName, int timeBetweenMsg,
             float lossProb, float corrProb,
             int windowsSize, int protocolType,
             int tracing) {
@@ -84,13 +85,18 @@ public class NetworkSimulator {
         DEBUG = tracing;
 
         //this loop will run while there are events in the priority queue
+        int totalTime = 0;
         while (true) {
             //get next event
             currentEvent = tl.returnNextEvent();
+
             //if no event present, break out
             if (currentEvent == null) {
-                break;
+                return totalTime;
             }
+            totalTime = currentEvent.getTime();
+            
+
             //if event is time to send a message, call the send message function of the sender application.   
             if (currentEvent.getType() == Event.MESSAGESEND) {
                 if (DEBUG > 0) {
@@ -132,6 +138,7 @@ public class NetworkSimulator {
 
     /**
      * Reading from file line by line
+     *
      * @param fileName The name of the file
      * @return A list of string, each is a line from the file
      */

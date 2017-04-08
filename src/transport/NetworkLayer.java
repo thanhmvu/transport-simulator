@@ -43,7 +43,7 @@ public class NetworkLayer {
         }
         if (ran.nextDouble() < corrProbability) {
             if (NetworkSimulator.DEBUG > 1) {
-                System.out.println("[NL] Packet seq: " + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " corruped");
+                System.out.println("[NL] Packet seq: " + pkt.getSeqnum() + " ack: " + pkt.getAcknum() + " corrupted");
             }
             pkt.corrupt();
         }
