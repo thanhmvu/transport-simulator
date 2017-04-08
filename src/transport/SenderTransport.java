@@ -51,7 +51,7 @@ public class SenderTransport {
             }
 
             int ackNum = -1;
-            Packet p = new Packet(msg, nextSeqNum, ackNum);
+            Packet p = new Packet(msg.clone(), nextSeqNum, ackNum);
             nl.sendPacket(p, Event.RECEIVER);
             nextSeqNum++;
 
@@ -177,7 +177,7 @@ public class SenderTransport {
         int seqnum = base;
         for (Message msg : unackedBuffer) {
             int ackNum = -1;
-            Packet p = new Packet(msg, seqnum, ackNum);
+            Packet p = new Packet(msg.clone(), seqnum, ackNum);
             nl.sendPacket(p, Event.RECEIVER);
             seqnum++;
         }
@@ -189,7 +189,7 @@ public class SenderTransport {
         tl.startTimer(timeout);
 
         // resend unacked message with smallest seqnum
-        Packet p = new Packet(unackedBuffer.getFirst(), base, -1);
+        Packet p = new Packet(unackedBuffer.getFirst().clone(), base, -1);
         nl.sendPacket(p, Event.RECEIVER);
     }
 

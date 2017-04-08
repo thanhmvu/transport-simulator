@@ -18,4 +18,8 @@ public class Message {
     public void corruptMessage() {
         x = String.valueOf(x.charAt(0) + 1) + x.substring(1);
     }
+    
+    public Message clone(){
+        return new Message(x);
+    }
 }
