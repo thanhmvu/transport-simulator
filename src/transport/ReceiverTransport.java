@@ -73,7 +73,7 @@ public class ReceiverTransport {
     private void receiveMessageGBN(Packet pkt) {
         if (!pkt.isCorrupt()) {
             if (pkt.getSeqnum() == cumulativeAckNum + 1) {
-               this.sendPacketToApp(pkt);
+                this.sendPacketToApp(pkt);
             }
             sendAck();
         }
@@ -89,21 +89,24 @@ public class ReceiverTransport {
             if (pkt.getSeqnum() == cumulativeAckNum) {
                 this.sendPacketToApp(pkt);
                 //fill in the gap
-                List<Packet> packetsToDelete = new ArrayList<>();
+                List<Packet> packetsToUnbuffer = new ArrayList<>();
                 for (Packet p : buffer) {
                     if (p.getSeqnum() == cumulativeAckNum) {
-                        this.sendPacketToApp(pkt);
-                        packetsToDelete.add(p);
+
+                        packetsToUnbuffer.add(p);
                     } else {
                         break;
                     }
                 }
-                
-                for (Packet p: packetsToDelete) {
+                for (Packet p : packetsToUnbuffer) {
                     buffer.remove(p);
+                    debugPrint("Remove packet seqnum " + p.getSeqnum() + "from buffer");
+                    this.sendPacketToApp(pkt);
                 }
             } else if (pkt.getSeqnum() > cumulativeAckNum) {
                 buffer.add(pkt);
+                debugPrint("Buffer packet seqnum " + pkt.getSeqnum());
+                debugPrint("Number of receiver's buffered pkts: " + buffer.size());
             }
             sendAck();
         }
@@ -134,11 +137,22 @@ public class ReceiverTransport {
      */
     public void setProtocol(int n) {
         usingTCP = n > 0;
-        
+
         if (!usingTCP) {
             initializeGBN();
         } else {
             initializeTCP();
+        }
+    }
+
+    /**
+     * Print out debug code
+     *
+     * @param s
+     */
+    private void debugPrint(String s) {
+        if (NetworkSimulator.DEBUG > 1) {
+            System.out.println("[RT] " + s);
         }
     }
 
