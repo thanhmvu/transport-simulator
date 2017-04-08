@@ -14,6 +14,9 @@ public class NetworkSimulator {
 
     /**
      * Main method
+     *
+     * @param args fileName timeBetweenSends lossProb corrProb winSize
+     * protocolType tracing
      */
     public static void main(String[] args) {
         //checking to see if enough arguements have been sent    
@@ -54,7 +57,10 @@ public class NetworkSimulator {
      * message is corrupted and lost. Greater than 2 will display messages that
      * are related to the event timeline.
      */
-    public void run(String fileName, int timeBetweenMsg, float lossProb, float corrProb, int windowsSize, int protocolType, int tracing) {
+    public void run(String fileName, int timeBetweenMsg,
+            float lossProb, float corrProb,
+            int windowsSize, int protocolType,
+            int tracing) {
         //current event to process
         Event currentEvent;
 
@@ -124,7 +130,11 @@ public class NetworkSimulator {
         }
     }
 
-    //reading in file line by line.
+    /**
+     * Reading from file line by line
+     * @param fileName The name of the file
+     * @return A list of string, each is a line from the file
+     */
     public ArrayList<String> readFile(String fileName) {
         ArrayList<String> messageArray = new ArrayList<>();
         try {

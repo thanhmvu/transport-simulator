@@ -17,26 +17,59 @@ import java.util.List;
  */
 public class ExperimentController {
 
-    public ExperimentController() {
+    private NetworkSimulator ns;
+    private static final String CORRECTNESS_FILE_PATH = "./correctnessTest.txt";
+    private static final String EXP_FILE_PATH = "./expTest.txt";
 
+    private static final int GBN = 0;
+    private static final int TCP = 1;
+
+    /**
+     * Create an experiment controller
+     */
+    public ExperimentController() {
+        ns = new NetworkSimulator();
     }
 
 //=============================== MAIN =============================     
     public static void main(String[] args) {
+        ExperimentController ec = new ExperimentController();
+        ec.checkCorrectness();
 
     }
 
 //================CORRECTNESS CHECKING=======================================
-    
-    public void checkCorrectness(String outputFile) {
-        
+    /**
+     * Print out sending and receiving at least 5 messages ( with at least one
+     * loss and one corruption), one for TCP, one for GBN
+     */
+    public void checkCorrectness() {
+        //set up numOfExp
+        int numExp = 3;
+
+        //set up control vars
+        int timeBtwMsgs = 20;
+        float lossProb = 0.10f;
+        float corrProb = 0.10f;
+        int winSize = 4;
+        int tracing = 1;
+
+        // Test Go-back-N
+        for (int i = 0; i < numExp; i++) {
+            System.out.println("==============Check correctness for Go-back-N - Test " + i + "==============");
+            ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, GBN, tracing);
+            // Test TCP
+            System.out.println("==============Check correctness for TCP - Test " + i + "==============");
+            ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, TCP, tracing);
+        }
+
     }
-    
+
 //==================EXPERIMENT=====================================
     public void runExperiments(String outputFile) {
-        
+
     }
-    
+
 //========================HELPERS=============================
     /**
      * Print a string to a new file
