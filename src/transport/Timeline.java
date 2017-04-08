@@ -5,7 +5,6 @@ import java.util.*;
 /**
  * This class represents the timeline of events in a priority queue
  */
-
 public class Timeline {
 
     private PriorityQueue<Event> events; //timeline of events. 
@@ -81,8 +80,17 @@ public class Timeline {
      * @param to who are we sending the packet to
      */
     public void createArriveEvent(Packet pkt, int to) {
-        lastArrivalTime = (lastArrivalTime > timeSoFar) ? lastArrivalTime : timeSoFar;
-        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + lastArrivalTime;
+        //comment this out because it's creating weird bug
+//        lastArrivalTime = (lastArrivalTime > timeSoFar) ? lastArrivalTime : timeSoFar;
+//        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + lastArrivalTime;
+    //out-of-order
+//        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + timeSoFar;
+
+        if (lastArrivalTime > timeSoFar) {
+            lastArrivalTime += (int) (timeBetweenSends * (-Math.log(ran.nextFloat())));
+        } else {
+            lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + timeSoFar;
+        }
 
         if (NetworkSimulator.DEBUG > 2) {
             String tmp = (to == Event.SENDER) ? "sender" : "receiver";

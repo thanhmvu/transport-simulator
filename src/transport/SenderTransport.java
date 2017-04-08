@@ -74,6 +74,7 @@ public class SenderTransport {
      * @param pkt the receiving packet
      */
     public void receiveMessage(Packet pkt) {
+        debug_print("Receive packet at sender; seqnum: " + pkt.getSeqnum() + " acknum: " + pkt.getAcknum());
         if (usingTCP) {
             receiveMessageTCP(pkt);
         } else {

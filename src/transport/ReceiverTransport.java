@@ -58,6 +58,7 @@ public class ReceiverTransport {
      * @param pkt the (possibly corrupted) packet sent from the sender.
      */
     public void receiveMessage(Packet pkt) {
+        debugPrint("Receive packet at receiver; seqnum: " + pkt.getSeqnum() + " acknum: " + pkt.getAcknum());
         if (!usingTCP) {
             receiveMessageGBN(pkt);
         } else {
