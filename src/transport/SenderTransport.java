@@ -151,8 +151,8 @@ public class SenderTransport {
 
     public void flushUnsentMsg() {
         while (!queue.isEmpty() && openWins() > 0) {
-            debug_print("Current buffered messages: " + buffer.size() + ", open windows: " + openWins());
-            debug_print("Sending buffered message in the queue");
+            debug_print("Current queuing messages: " + queue.size() + ", open windows: " + openWins());
+            debug_print("Sending the next message in the queue");
             this.sendMessage(queue.pop());
         }
     }
