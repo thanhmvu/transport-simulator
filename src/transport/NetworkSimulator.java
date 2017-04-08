@@ -8,51 +8,75 @@ public class NetworkSimulator {
 
     public static int DEBUG;
 
+    public NetworkSimulator() {
+
+    }
+
     /**
-     * Main method with follwing variables
+     * Main method
+     */
+    public static void main(String[] args) {
+        //checking to see if enough arguements have been sent    
+        if (args.length < 6) {
+            System.out.println("need at least 6 arguments");
+            System.exit(1);
+        }
+        NetworkSimulator ns = new NetworkSimulator();
+        if (args.length > 7) {
+            ns.run(args[0],
+                    Integer.parseInt(args[1]),
+                    Float.parseFloat(args[2]),
+                    Float.parseFloat(args[3]),
+                    Integer.parseInt(args[4]),
+                    Integer.parseInt(args[5]),
+                    Integer.parseInt(args[6]));
+        } else {
+            ns.run(args[0],
+                    Integer.parseInt(args[1]),
+                    Float.parseFloat(args[2]),
+                    Float.parseFloat(args[3]),
+                    Integer.parseInt(args[4]),
+                    Integer.parseInt(args[5]),
+                    0);
+        }
+    }
+
+    /**
      *
-     *
-     * @param args[0] file with messages
-     * @param args[1] time between messages
-     * @param args[2] loss probability
-     * @param args[3] corruption probability
-     * @param args[4] windows size
-     * @param args[5] Go-back-N vs TCP 0 means go­back­n,1 means TCP
-     * @param args[6] Tracing: 0 will turn this off. 1 prints out times for
+     * @param fileName file with messages
+     * @param timeBetweenMsg time between messages
+     * @param lossProb loss probability
+     * @param corrProb corruption probability
+     * @param windowsSize windows size
+     * @param protocolType Go-back-N vs TCP 0 means go­back­n,1 means TCP
+     * @param tracing Tracing: 0 will turn this off. 1 prints out times for
      * sending, receiving and timers expiring events. 2 prints out when a
      * message is corrupted and lost. Greater than 2 will display messages that
      * are related to the event timeline.
      */
-    public static void main(String[] args) {
+    public void run(String fileName, int timeBetweenMsg, float lossProb, float corrProb, int windowsSize, int protocolType, int tracing) {
         //current event to process
         Event currentEvent;
-        //checking to see if enough arguements have been sent    
-        if (args.length < 5) {
-            System.out.println("need at least 5 arguements");
-            System.exit(1);
-        }
+
         //reading in file line by line. Each line will be one message
-        ArrayList<String> messageArray = readFile(args[0]);
+        ArrayList<String> messageArray = readFile(fileName);
         //creating a new timeline with an average time between packets.
-        Timeline tl = new Timeline(Integer.parseInt(args[1]), messageArray.size());
+        Timeline tl = new Timeline(timeBetweenMsg, messageArray.size());
         //creating a new network layer with specific loss and curroption probability.
-        NetworkLayer nl = new NetworkLayer(Float.parseFloat(args[2]), Float.parseFloat(args[3]), tl);
+        NetworkLayer nl = new NetworkLayer(lossProb, corrProb, tl);
         SenderApplication sa = new SenderApplication(messageArray, nl);
         SenderTransport st = sa.getSenderTransport();
         //sender and receiver transport needs access to timeline to set timer.
         st.setTimeLine(tl);
         ReceiverTransport rt = new ReceiverTransport(nl);
         //setting window size
-        st.setWindowSize(Integer.parseInt(args[4]));
+        st.setWindowSize(windowsSize);
         //setting protocol type
-        st.setProtocol(Integer.parseInt(args[5]));
-        rt.setProtocol(Integer.parseInt(args[5]));
-        
-        DEBUG = 0;
-        if(args.length >= 6){
-            DEBUG = Integer.parseInt(args[6]);
-        }
-        
+        st.setProtocol(protocolType);
+        rt.setProtocol(protocolType);
+
+        DEBUG = tracing;
+
         //this loop will run while there are events in the priority queue
         while (true) {
             //get next event
@@ -101,7 +125,7 @@ public class NetworkSimulator {
     }
 
     //reading in file line by line.
-    public static ArrayList<String> readFile(String fileName) {
+    public ArrayList<String> readFile(String fileName) {
         ArrayList<String> messageArray = new ArrayList<>();
         try {
             Scanner sc = new Scanner(new FileReader(fileName));
