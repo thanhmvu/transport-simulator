@@ -14,8 +14,8 @@ public class SenderTransport {
     private int nextSeqNum; // seg num of the next packet
     private int base;
     private int timeout;
-    private LinkedList<Message> buffer;
-    private LinkedList<Message> unackedBuffer;
+    private LinkedList<Message> queue;
+    private LinkedList<Message> unackedMsgs;
     private int cntDupAcks;
 
     public SenderTransport(NetworkLayer nl) {
@@ -31,8 +31,8 @@ public class SenderTransport {
         base = 0;
         nextSeqNum = 0;
         timeout = 20; // avg RTT = 10 time units
-        buffer = new LinkedList<>();
-        unackedBuffer = new LinkedList<>();
+        queue = new LinkedList<>();
+        unackedMsgs = new LinkedList<>();
         cntDupAcks = 0;
     }
 
@@ -45,23 +45,23 @@ public class SenderTransport {
      */
     public void sendMessage(Message msg) {
         if (nextSeqNum < base + n) { // Send message if the window is not full
+            // buffer unacked msg
+            unackedMsgs.add(msg);
+            
             // start timer if needed
             if (this.base == this.nextSeqNum) {
                 tl.startTimer(timeout);
             }
 
-            int ackNum = -1;
-            Packet p = new Packet(msg.clone(), nextSeqNum, ackNum);
+            Packet p = new Packet(msg.clone(), nextSeqNum, -1);
             nl.sendPacket(p, Event.RECEIVER);
             nextSeqNum++;
 
-            // buffer unacked msg
-            unackedBuffer.add(msg);
         } else { // Buffer message if full
-            buffer.add(msg);
+            queue.add(msg);
 
             debug_print("Buffered message");
-            debug_print("Current buffered messages: " + buffer.size());
+            debug_print("Current buffered messages: " + queue.size());
             // message should be sent when base increases
         }
     }
@@ -92,7 +92,7 @@ public class SenderTransport {
         if (!pkt.isCorrupt() && pkt.getAcknum() >= base) {
             // update unacked messages
             for (int i = base; i <= pkt.getAcknum(); i++) {
-                unackedBuffer.removeFirst();
+                unackedMsgs.removeFirst();
             }
 
             // move base + stop/ restart timer
@@ -120,7 +120,7 @@ public class SenderTransport {
             if (pkt.getAcknum() > base) { // valid ack
                 // update unacked messages
                 for (int i = base; i < pkt.getAcknum(); i++) {
-                    unackedBuffer.removeFirst();
+                    unackedMsgs.removeFirst();
                 }
 
                 // update variables 
@@ -150,10 +150,10 @@ public class SenderTransport {
     }
 
     public void flushUnsentMsg() {
-        while (!buffer.isEmpty() && openWins() > 0) {
+        while (!queue.isEmpty() && openWins() > 0) {
             debug_print("Current buffered messages: " + buffer.size() + ", open windows: " + openWins());
             debug_print("Sending buffered message in the queue");
-            this.sendMessage(buffer.pop());
+            this.sendMessage(queue.pop());
         }
     }
 
@@ -175,9 +175,8 @@ public class SenderTransport {
         tl.startTimer(timeout);
         // resend all unacked messages
         int seqnum = base;
-        for (Message msg : unackedBuffer) {
-            int ackNum = -1;
-            Packet p = new Packet(msg.clone(), seqnum, ackNum);
+        for (Message msg : unackedMsgs) {
+            Packet p = new Packet(msg.clone(), seqnum, -1);
             nl.sendPacket(p, Event.RECEIVER);
             seqnum++;
         }
@@ -189,7 +188,7 @@ public class SenderTransport {
         tl.startTimer(timeout);
 
         // resend unacked message with smallest seqnum
-        Packet p = new Packet(unackedBuffer.getFirst().clone(), base, -1);
+        Packet p = new Packet(unackedMsgs.getFirst().clone(), base, -1);
         nl.sendPacket(p, Event.RECEIVER);
     }
 
