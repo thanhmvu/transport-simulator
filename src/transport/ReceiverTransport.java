@@ -1,6 +1,8 @@
 package transport;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -87,13 +89,18 @@ public class ReceiverTransport {
             if (pkt.getSeqnum() == cumulativeAckNum) {
                 this.sendPacketToApp(pkt);
                 //fill in the gap
+                List<Packet> packetsToDelete = new ArrayList<>();
                 for (Packet p : buffer) {
                     if (p.getSeqnum() == cumulativeAckNum) {
                         this.sendPacketToApp(pkt);
-                        buffer.remove(p);
+                        packetsToDelete.add(p);
                     } else {
                         break;
                     }
+                }
+                
+                for (Packet p: packetsToDelete) {
+                    buffer.remove(p);
                 }
             } else if (pkt.getSeqnum() > cumulativeAckNum) {
                 buffer.add(pkt);
