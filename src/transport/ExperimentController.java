@@ -22,7 +22,7 @@ public class ExperimentController {
     private NetworkSimulator ns;
     private static final String CORRECTNESS_FILE_PATH = "./correctnessTest.txt";
     private static final String EXP_FILE_PATH = "./expTest.txt";
-    private static final int DEBUG_SETTING_EXP = 0;
+    private static final int DEBUG_SETTING_EXP = 2;
 
     private static final int GBN = 0;
     private static final int TCP = 1;
