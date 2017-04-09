@@ -85,5 +85,9 @@ public class Packet {
         }
 
     }
+    
+    public Packet clone(){
+        return new Packet(msg.clone(),seqnum,acknum);
+    }
 
 }

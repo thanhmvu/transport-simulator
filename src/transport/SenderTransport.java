@@ -16,7 +16,7 @@ public class SenderTransport {
     private int base;
     private int timeout;
     private LinkedList<Message> queue;
-    private LinkedList<Message> unackedMsgs;
+    private LinkedList<Packet> unackedMsgs;
     private int cntDupAcks;
 
     public SenderTransport(NetworkLayer nl) {
@@ -46,15 +46,14 @@ public class SenderTransport {
      */
     public void sendMessage(Message msg) {
         if (nextSeqNum < base + n) { // Send message if the window is not full
-            // buffer unacked msg
-            unackedMsgs.add(msg);
-
             // start timer if needed
             if (this.base == this.nextSeqNum) {
                 tl.startTimer(timeout);
             }
 
             Packet p = new Packet(msg.clone(), nextSeqNum, -1);
+            unackedMsgs.add(p.clone()); // buffer unacked msg
+            
             nl.sendPacket(p, Event.RECEIVER);
             nextSeqNum++;
 
@@ -177,9 +176,8 @@ public class SenderTransport {
         tl.startTimer(timeout);
         // resend all unacked messages
         int seqnum = base;
-        for (Message msg : unackedMsgs) {
-            Packet p = new Packet(msg.clone(), seqnum, -1);
-            nl.sendPacket(p, Event.RECEIVER);
+        for (Packet p : unackedMsgs) {
+            nl.sendPacket(p.clone(), Event.RECEIVER);
             seqnum++;
         }
     }
@@ -190,7 +188,7 @@ public class SenderTransport {
         tl.startTimer(timeout);
 
         // resend unacked message with smallest seqnum
-        Packet p = new Packet(unackedMsgs.getFirst().clone(), base, -1);
+        Packet p = unackedMsgs.getFirst().clone();
         nl.sendPacket(p, Event.RECEIVER);
 
     }
