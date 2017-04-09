@@ -63,7 +63,7 @@ public class ReceiverTransport {
      * @param pkt the (possibly corrupted) packet sent from the sender.
      */
     public void receiveMessage(Packet pkt) {
-        debugPrint("Receive packet at receiver; seqnum: " + pkt.getSeqnum() + " acknum: " + pkt.getAcknum());
+        debugPrint("Receive packet at receiver; seqnum: " + pkt.getSeqnum() + " acknum: " + pkt.getAcknum() + " msg: " + pkt.getMessage().getMessage());
         if (!usingTCP) {
             receiveMessageGBN(pkt);
         } else {
@@ -109,12 +109,12 @@ public class ReceiverTransport {
                 // for each of the packets to debuffer, remove it from the buffer and send it to app
                 for (Packet p : packetsToDebuffer) {
                     tcpBuffer.remove(p);
-                    debugPrint("Remove packet seqnum " + p.getSeqnum() + "from buffer");
-                    this.sendPacketToApp(pkt);
+                    debugPrint("Remove packet seqnum " + p.getSeqnum() + " msg " + p.getMessage().getMessage() + " from buffer");
+                    this.sendPacketToApp(p);
                 }
             } else if (pkt.getSeqnum() > cumulativeAckNum) {
                 tcpBuffer.add(pkt);
-                debugPrint("Buffer packet seqnum " + pkt.getSeqnum());
+                debugPrint("Buffer packet seqnum " + pkt.getSeqnum() + " msg: " + pkt.getMessage().getMessage());
                 debugPrint("Number of receiver's buffered pkts: " + tcpBuffer.size());
             }
             sendAck();
