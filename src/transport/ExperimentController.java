@@ -48,8 +48,6 @@ public class ExperimentController {
      * loss and one corruption), one for TCP, one for GBN
      */
     public void checkCorrectness() {
-        //set up numOfExp
-        int numRuns = 2;
 
         //set up control vars
         int timeBtwMsgs = 3;
@@ -58,52 +56,55 @@ public class ExperimentController {
         int winSize = 3;
         int tracing = 2;
 
-        // Test Go-back-N
-        for (int i = 0; i < numRuns; i++) {
-            System.out.println("==============Check correctness for Go-back-N - Test " + i + "==============");
-            ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, GBN, tracing);
-            // Test TCP
-            System.out.println("==============Check correctness for TCP - Test " + i + "==============");
-            ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, TCP, tracing);
-        }
+        // No Loss/Corruption
+        System.out.println("==============Check correctness for Go-back-N - No Loss/Corruption==============");
+        ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, GBN, tracing);
+        System.out.println("==============Check correctness for TCP - No Loss/Corruption==============");
+        ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, TCP, tracing);
 
+        // With Loss/Corruption
+        lossProb = 0.15f;
+        corrProb = 0.15f;
+        
+        System.out.println("==============Check correctness for Go-back-N - With Loss/Corruption==============");
+        ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, GBN, tracing);
+        System.out.println("==============Check correctness for TCP - With Loss/Corruption==============");
+        ns.run(CORRECTNESS_FILE_PATH, timeBtwMsgs, lossProb, corrProb, winSize, TCP, tracing);
     }
 
 //==================EXPERIMENT=====================================
     public void runExperiments(String outputFilePath) {
-        int runs = 20;
+        int runs = 50;
         int numTrialsPerRun = 6;
         String finalResult = "";
         //============Time Between Sends==================//
-        int initialTimeBtwSends = 2;
-        int maxTimeBtwSends = 22;
-        int tbsIncrement = (maxTimeBtwSends - initialTimeBtwSends)/runs;
+        int initialTimeBtwSends = 0;
+        int maxTimeBtwSends = 50;
+        int tbsIncrement = (maxTimeBtwSends - initialTimeBtwSends) / runs;
         finalResult += this.runTimeBtwSendsExp(initialTimeBtwSends, tbsIncrement, runs, numTrialsPerRun).toCsvString();
 
         //============Loss Probability==================//
         float initialLossProb = 0.0f;
-        float maxLossProb = 0.50f;
-        float lossIncrement = (maxLossProb - initialLossProb)/runs;
+        float maxLossProb = 0.70f;
+        float lossIncrement = (maxLossProb - initialLossProb) / runs;
         finalResult += this.runLossProbExp(initialLossProb, lossIncrement, runs, numTrialsPerRun).toCsvString();
 
         //============Corruption Probability==================//
         float initialCorrProb = 0.0f;
-        float maxCorrProb = 0.50f;
-        float corrIncrement = (maxCorrProb - initialCorrProb)/runs;
+        float maxCorrProb = 0.70f;
+        float corrIncrement = (maxCorrProb - initialCorrProb) / runs;
         finalResult += this.runCorrProbExp(initialCorrProb, corrIncrement, runs, numTrialsPerRun).toCsvString();
-        
+
         //============Windows size==================//
-        int initialSize = 5;
-        int sizeIncrement = 5;
+        int initialSize = 1;
+        int sizeIncrement = 1;
         finalResult += this.runWindowsSizeExp(initialSize, sizeIncrement, runs, numTrialsPerRun).toCsvString();
-        
-        
+
         try {
             this.printToFile(outputFilePath, finalResult);
         } catch (IOException ex) {
             Logger.getLogger(ExperimentController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
 
     }
 
@@ -133,7 +134,7 @@ public class ExperimentController {
             for (int j = 0; j < numTrialsPerRun; j++) {
                 System.out.println("\n================================= GBN =================================\n");
                 totalGBN += ns.run(EXP_FILE_PATH, timeBtwSends, lossProb, corrProb, windowsSize, GBN, DEBUG_SETTING_EXP);
-                
+
                 System.out.println("\n================================= TCP =================================\n");
                 totalTCP += ns.run(EXP_FILE_PATH, timeBtwSends, lossProb, corrProb, windowsSize, TCP, DEBUG_SETTING_EXP);
             }
@@ -266,6 +267,7 @@ public class ExperimentController {
         return results;
     }
 //========================HELPERS=============================
+
     /**
      * Print a string to a new file
      *

@@ -103,13 +103,13 @@ public class ReceiverTransport {
                 // find all packets that would fill the gap, add to a list
                 int tempCumAckNum = cumulativeAckNum;
                 
-                //print content of buffer
-                String print = "TCPBUFFER:";
-                for (Packet p: tcpBuffer) {
-                    print+=p.getSeqnum() + " ";
-                } debugPrint(print);
-                
-                
+//                //print content of buffer
+//                String print = "TCPBUFFER:";
+//                for (Packet p: tcpBuffer) {
+//                    print+=p.getSeqnum() + " ";
+//                } debugPrint(print);
+//                
+//                
                 for (Packet p : tcpBuffer) {
                     if (p.getSeqnum() != tempCumAckNum) {
                         break;
