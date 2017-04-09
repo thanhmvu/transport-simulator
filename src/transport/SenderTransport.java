@@ -39,8 +39,10 @@ public class SenderTransport {
 
     /**
      * This routine will be called whenever the upper layer at the sending side
-     * has a message to send. The data in such a message should be delivered
+     * has a message to send. 
+     * The data in such a message should be delivered
      * in-order and correctly to the receiving side upper layer.
+     * This same routine is used for both GBN and TCP
      *
      * @param msg message contains data to be sent to the other side (B-side)
      */
@@ -51,10 +53,12 @@ public class SenderTransport {
                 tl.startTimer(timeout);
             }
 
-            Packet p = new Packet(msg.clone(), nextSeqNum, -1);
-            unackedMsgs.add(p.clone()); // buffer unacked msg
+            // put message in a packet and backup the packet
+            Packet p = new Packet(msg, nextSeqNum, -1);
+            unackedMsgs.add(p); // buffer unacked msg
             
-            nl.sendPacket(p, Event.RECEIVER);
+            // pass a copy of the original packet to network layer
+            nl.sendPacket(p.clone(), Event.RECEIVER);
             nextSeqNum++;
 
         } else { // Buffer message if full
@@ -62,7 +66,8 @@ public class SenderTransport {
 
             debug_print("Buffered message");
             debug_print("Current buffered messages: " + queue.size());
-            // message should be sent when base increases
+            
+            // message should be sent later when base increases (open window)
         }
     }
 
@@ -109,6 +114,9 @@ public class SenderTransport {
         }
     }
 
+    /**
+     * Print all unacked messages in the buffer.
+     */
     public void printUnackedMsgs(){
         if(!unackedMsgs.isEmpty()){
         String tmp = "unackedMsgs: ";
@@ -133,7 +141,6 @@ public class SenderTransport {
                 for (int i = base; i < pkt.getAcknum(); i++) {
                     unackedMsgs.removeFirst();
                 }
-                
 
                 // update variables 
                 base = pkt.getAcknum();
@@ -157,10 +164,20 @@ public class SenderTransport {
         }
     }
 
+    /**
+     * Return the current number of open windows.
+     * This number indicates how many unacked messages are allowed
+     * 
+     * @return number of open windows
+     */
     public int openWins() {
         return (base + n - nextSeqNum);
     }
 
+    /**
+     * This method sends queuing messages continuously 
+     * until the window is full or there is no more queuing messages.
+     */
     public void flushUnsentMsg() {
         while (!queue.isEmpty() && openWins() > 0) {
             debug_print("Current queuing messages: " + queue.size() + ", open windows: " + openWins());
@@ -183,6 +200,9 @@ public class SenderTransport {
         }
     }
 
+    /**
+     * This method resends all unacked messages currently in the buffer.
+     */
     private void resendAllMsgs() {
         tl.startTimer(timeout);
         // resend all unacked messages
@@ -193,18 +213,17 @@ public class SenderTransport {
         }
     }
 
+    /**
+     * This method resends the oldest unacked messages currently in the buffer.
+     */
     private void resendFirstMsg() {
         cntDupAcks = 0;
-        
         if(unackedMsgs.isEmpty()){ return; }
         
         tl.restartTimer(timeout);
-        Packet p;
-        
         // resend unacked message with smallest seqnum
-        p = unackedMsgs.getFirst();
-        p = p.clone();
-        nl.sendPacket(p, Event.RECEIVER);
+        Packet p = unackedMsgs.getFirst();
+        nl.sendPacket(p.clone(), Event.RECEIVER);
     }
 
     public void setTimeLine(Timeline tl) {
