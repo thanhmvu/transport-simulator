@@ -132,4 +132,17 @@ public class Timeline {
         timerPointer = null;
     }
 
+    /**
+     * Starting a new timer or restarting if it si already started.
+     * setting timerPointer to point at timer event.
+     *
+     * @param increment timeout for timer
+     */
+    public void restartTimer(int increment) {
+        timerPointer = new Event(timeSoFar + increment, Event.TIMER, Event.SENDER);
+        events.add(timerPointer);
+        if (NetworkSimulator.DEBUG > 2) {
+            System.out.println("[Tl] Inserting future timer event at " + timeSoFar + " for time out at " + (timeSoFar + increment));
+        }
+    }
 }

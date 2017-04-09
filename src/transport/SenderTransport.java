@@ -62,7 +62,6 @@ public class SenderTransport {
 
             debug_print("Buffered message");
             debug_print("Current buffered messages: " + queue.size());
-            printUnackedMsgs();
             // message should be sent when base increases
         }
     }
@@ -131,10 +130,8 @@ public class SenderTransport {
         if (!pkt.isCorrupt()) {
             if (pkt.getAcknum() > base) { // valid ack
                 // update unacked messages
-                printUnackedMsgs();
                 for (int i = base; i < pkt.getAcknum(); i++) {
                     unackedMsgs.removeFirst();
-                    printUnackedMsgs();
                 }
                 
 
@@ -154,7 +151,6 @@ public class SenderTransport {
             } else { // duplicate ack
                 cntDupAcks++;
                 if (cntDupAcks == 3) { // fast retransmit
-                    tl.stopTimer();
                     resendFirstMsg();
                 }
             }
@@ -198,21 +194,17 @@ public class SenderTransport {
     }
 
     private void resendFirstMsg() {
-        if(unackedMsgs.isEmpty()){ return; }
-        // reset variables
         cntDupAcks = 0;
-        tl.startTimer(timeout);
+        
+        if(unackedMsgs.isEmpty()){ return; }
+        
+        tl.restartTimer(timeout);
         Packet p;
+        
         // resend unacked message with smallest seqnum
         p = unackedMsgs.getFirst();
         p = p.clone();
         nl.sendPacket(p, Event.RECEIVER);
-//        }catch (NoSuchElementException e){
-//            e.printStackTrace();
-//            System.out.println("Oh no");
-//        }
-        
-
     }
 
     public void setTimeLine(Timeline tl) {

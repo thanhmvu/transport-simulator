@@ -37,7 +37,7 @@ public class ExperimentController {
 //=============================== MAIN =============================     
     public static void main(String[] args) {
         ExperimentController ec = new ExperimentController();
-//        ec.checkCorrectness();
+        ec.checkCorrectness();
         ec.runExperiments("./expResults.csv");
 
     }
@@ -82,13 +82,13 @@ public class ExperimentController {
 
         //============Loss Probability==================//
         float initialLossProb = 0.0f;
-        float maxLossProb = 0.70f;
+        float maxLossProb = 0.50f;
         float lossIncrement = (maxLossProb - initialLossProb)/runs;
         finalResult += this.runLossProbExp(initialLossProb, lossIncrement, runs, numTrialsPerRun).toCsvString();
 
         //============Corruption Probability==================//
         float initialCorrProb = 0.0f;
-        float maxCorrProb = 0.70f;
+        float maxCorrProb = 0.50f;
         float corrIncrement = (maxCorrProb - initialCorrProb)/runs;
         finalResult += this.runCorrProbExp(initialCorrProb, corrIncrement, runs, numTrialsPerRun).toCsvString();
         
