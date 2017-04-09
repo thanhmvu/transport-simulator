@@ -62,6 +62,7 @@ public class SenderTransport {
 
             debug_print("Buffered message");
             debug_print("Current buffered messages: " + queue.size());
+            printUnackedMsgs();
             // message should be sent when base increases
         }
     }
@@ -109,6 +110,16 @@ public class SenderTransport {
         }
     }
 
+    public void printUnackedMsgs(){
+        if(!unackedMsgs.isEmpty()){
+        String tmp = "unackedMsgs: ";
+        for(int i = 0; i < unackedMsgs.size(); i++){
+            tmp += unackedMsgs.get(i).getSeqnum() + " ";
+        }
+        System.out.println(tmp);
+        }
+    }
+    
     /**
      * This routine will be called whenever a TCP packet sent from the receiver
      * arrives at the sender. Packet is sent from the receiver (B-side) and is
@@ -120,9 +131,12 @@ public class SenderTransport {
         if (!pkt.isCorrupt()) {
             if (pkt.getAcknum() > base) { // valid ack
                 // update unacked messages
+                printUnackedMsgs();
                 for (int i = base; i < pkt.getAcknum(); i++) {
                     unackedMsgs.removeFirst();
+                    printUnackedMsgs();
                 }
+                
 
                 // update variables 
                 base = pkt.getAcknum();
@@ -140,6 +154,7 @@ public class SenderTransport {
             } else { // duplicate ack
                 cntDupAcks++;
                 if (cntDupAcks == 3) { // fast retransmit
+                    tl.stopTimer();
                     resendFirstMsg();
                 }
             }
@@ -183,13 +198,20 @@ public class SenderTransport {
     }
 
     private void resendFirstMsg() {
+        if(unackedMsgs.isEmpty()){ return; }
         // reset variables
         cntDupAcks = 0;
         tl.startTimer(timeout);
-
+        Packet p;
         // resend unacked message with smallest seqnum
-        Packet p = unackedMsgs.getFirst().clone();
+        p = unackedMsgs.getFirst();
+        p = p.clone();
         nl.sendPacket(p, Event.RECEIVER);
+//        }catch (NoSuchElementException e){
+//            e.printStackTrace();
+//            System.out.println("Oh no");
+//        }
+        
 
     }
 
