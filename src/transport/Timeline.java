@@ -81,16 +81,16 @@ public class Timeline {
      */
     public void createArriveEvent(Packet pkt, int to) {
         //comment this out because it's creating weird bug
-//        lastArrivalTime = (lastArrivalTime > timeSoFar) ? lastArrivalTime : timeSoFar;
-//        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + lastArrivalTime;
+        lastArrivalTime = (lastArrivalTime > timeSoFar) ? lastArrivalTime : timeSoFar;
+        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + lastArrivalTime;
         //out-of-order
 //        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + timeSoFar;
 
-        if (lastArrivalTime > timeSoFar) {
-            lastArrivalTime += (int) (timeBetweenSends * (-Math.log(ran.nextFloat())));
-        } else {
-            lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + timeSoFar;
-        }
+//        if (lastArrivalTime > timeSoFar) {
+//            lastArrivalTime += (int) (timeBetweenSends * (-Math.log(ran.nextFloat())));
+//        } else {
+//            lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + timeSoFar;
+//        }
 
         if (NetworkSimulator.DEBUG > 2) {
             String tmp = (to == Event.SENDER) ? "sender" : "receiver";

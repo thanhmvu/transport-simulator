@@ -80,10 +80,9 @@ public class ReceiverTransport {
         if (!pkt.isCorrupt()) {
             if (pkt.getSeqnum() == cumulativeAckNum + 1) {
                 this.sendPacketToApp(pkt);
-                sendAck();
-            } else if (pkt.getSeqnum() > cumulativeAckNum + 1) {
-                sendAck();
-            }
+                
+            } 
+            sendAck();
             
         }
     }
@@ -115,13 +114,12 @@ public class ReceiverTransport {
                     debugPrint("Remove packet seqnum " + p.getSeqnum() + " msg " + p.getMessage().getMessage() + " from buffer");
                     this.sendPacketToApp(p);
                 }
-                sendAck();
             } else if (pkt.getSeqnum() > cumulativeAckNum) {
                 tcpBuffer.add(pkt);
                 debugPrint("Buffer packet seqnum " + pkt.getSeqnum() + " msg: " + pkt.getMessage().getMessage());
-                debugPrint("Number of receiver's buffered pkts: " + tcpBuffer.size());
-                sendAck();
+                debugPrint("Number of receiver's buffered pkts: " + tcpBuffer.size()); 
             }
+            sendAck();
             
         }
     }
