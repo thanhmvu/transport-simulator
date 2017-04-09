@@ -104,8 +104,8 @@ public class SenderTransport {
             // move base + stop/ restart timer
             base = pkt.getAcknum() + 1;
             tl.stopTimer();
+            // restart if there is unacked message
             if (base != this.nextSeqNum) {
-                // restart timer if there is still unacked message
                 tl.startTimer(timeout);
             }
 
@@ -146,7 +146,6 @@ public class SenderTransport {
                 base = pkt.getAcknum();
                 cntDupAcks = 0;
                 tl.stopTimer();
-
                 // restart if there is unacked message
                 if (base != this.nextSeqNum) {
                     tl.startTimer(timeout);
@@ -158,6 +157,7 @@ public class SenderTransport {
             } else { // duplicate ack
                 cntDupAcks++;
                 if (cntDupAcks == 3) { // fast retransmit
+                    cntDupAcks = 0; // reset cnt
                     resendFirstMsg();
                 }
             }
@@ -204,7 +204,7 @@ public class SenderTransport {
      * This method resends all unacked messages currently in the buffer.
      */
     private void resendAllMsgs() {
-        tl.startTimer(timeout);
+        tl.restartTimer(timeout);
         // resend all unacked messages
         int seqnum = base;
         for (Packet p : unackedMsgs) {
@@ -217,7 +217,7 @@ public class SenderTransport {
      * This method resends the oldest unacked messages currently in the buffer.
      */
     private void resendFirstMsg() {
-        cntDupAcks = 0;
+//        cntDupAcks = 0;
         if(unackedMsgs.isEmpty()){ return; }
         
         tl.restartTimer(timeout);

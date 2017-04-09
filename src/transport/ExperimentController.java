@@ -131,7 +131,10 @@ public class ExperimentController {
             int totalTCP = 0;
 
             for (int j = 0; j < numTrialsPerRun; j++) {
+                System.out.println("\n================================= GBN =================================\n");
                 totalGBN += ns.run(EXP_FILE_PATH, timeBtwSends, lossProb, corrProb, windowsSize, GBN, DEBUG_SETTING_EXP);
+                
+                System.out.println("\n================================= TCP =================================\n");
                 totalTCP += ns.run(EXP_FILE_PATH, timeBtwSends, lossProb, corrProb, windowsSize, TCP, DEBUG_SETTING_EXP);
             }
             //take the average
