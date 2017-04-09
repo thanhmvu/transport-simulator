@@ -1,6 +1,7 @@
 package transport;
 
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 /**
  * A class which represents the receiver transport layer
@@ -47,7 +48,7 @@ public class SenderTransport {
         if (nextSeqNum < base + n) { // Send message if the window is not full
             // buffer unacked msg
             unackedMsgs.add(msg);
-            
+
             // start timer if needed
             if (this.base == this.nextSeqNum) {
                 tl.startTimer(timeout);
@@ -81,12 +82,12 @@ public class SenderTransport {
             receiveMessageGBN(pkt);
         }
     }
-    
+
     /**
-     * This routine will be called whenever 
-     * a GBN packet sent from the receiver arrives at the sender. 
-     * Packet is sent from the receiver (B-side) and is possibly corrupted.
-     * 
+     * This routine will be called whenever a GBN packet sent from the receiver
+     * arrives at the sender. Packet is sent from the receiver (B-side) and is
+     * possibly corrupted.
+     *
      * pkt - the receiving packet
      */
     public void receiveMessageGBN(Packet pkt) {
@@ -145,7 +146,7 @@ public class SenderTransport {
             }
         }
     }
-    
+
     public int openWins() {
         return (base + n - nextSeqNum);
     }
@@ -171,7 +172,7 @@ public class SenderTransport {
             resendAllMsgs();
         }
     }
-    
+
     private void resendAllMsgs() {
         tl.startTimer(timeout);
         // resend all unacked messages
@@ -191,6 +192,7 @@ public class SenderTransport {
         // resend unacked message with smallest seqnum
         Packet p = new Packet(unackedMsgs.getFirst().clone(), base, -1);
         nl.sendPacket(p, Event.RECEIVER);
+
     }
 
     public void setTimeLine(Timeline tl) {
@@ -204,8 +206,10 @@ public class SenderTransport {
     public void setProtocol(int n) {
         usingTCP = n > 0;
     }
-    
-    private void debug_print(String s){
-        if (NetworkSimulator.DEBUG > 1) System.out.println("[ST] "+s);
+
+    private void debug_print(String s) {
+        if (NetworkSimulator.DEBUG > 1) {
+            System.out.println("[ST] " + s);
+        }
     }
 }

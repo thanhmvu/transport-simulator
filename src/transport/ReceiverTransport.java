@@ -15,8 +15,13 @@ public class ReceiverTransport {
     private NetworkLayer nl;
     private boolean usingTCP;
     private int cumulativeAckNum;
-    private Set<Packet> buffer;
+    private Set<Packet> tcpBuffer;
 
+    /**
+     * Create a receiver transport
+     *
+     * @param nl Network Layer
+     */
     public ReceiverTransport(NetworkLayer nl) {
         ra = new ReceiverApplication();
         this.nl = nl;
@@ -42,7 +47,7 @@ public class ReceiverTransport {
      */
     private void initializeTCP() {
         cumulativeAckNum = 0;
-        buffer = new TreeSet<>(new Comparator<Packet>() {
+        tcpBuffer = new TreeSet<>(new Comparator<Packet>() {
             @Override
             public int compare(Packet p1, Packet p2) {
                 return p2.getSeqnum() - p1.getSeqnum();
@@ -89,25 +94,28 @@ public class ReceiverTransport {
         if (!pkt.isCorrupt()) {
             if (pkt.getSeqnum() == cumulativeAckNum) {
                 this.sendPacketToApp(pkt);
-                //fill in the gap
-                List<Packet> packetsToUnbuffer = new ArrayList<>();
-                for (Packet p : buffer) {
-                    if (p.getSeqnum() == cumulativeAckNum) {
 
-                        packetsToUnbuffer.add(p);
-                    } else {
+                //fill in the gap
+                List<Packet> packetsToDebuffer = new ArrayList<>();
+
+                // find all packets that would fill the gap, add to a list
+                for (Packet p : tcpBuffer) {
+                    if (p.getSeqnum() != cumulativeAckNum) {
                         break;
                     }
+                    packetsToDebuffer.add(p);
                 }
-                for (Packet p : packetsToUnbuffer) {
-                    buffer.remove(p);
+
+                // for each of the packets to debuffer, remove it from the buffer and send it to app
+                for (Packet p : packetsToDebuffer) {
+                    tcpBuffer.remove(p);
                     debugPrint("Remove packet seqnum " + p.getSeqnum() + "from buffer");
                     this.sendPacketToApp(pkt);
                 }
             } else if (pkt.getSeqnum() > cumulativeAckNum) {
-                buffer.add(pkt);
+                tcpBuffer.add(pkt);
                 debugPrint("Buffer packet seqnum " + pkt.getSeqnum());
-                debugPrint("Number of receiver's buffered pkts: " + buffer.size());
+                debugPrint("Number of receiver's buffered pkts: " + tcpBuffer.size());
             }
             sendAck();
         }

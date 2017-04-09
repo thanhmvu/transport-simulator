@@ -83,7 +83,7 @@ public class Timeline {
         //comment this out because it's creating weird bug
 //        lastArrivalTime = (lastArrivalTime > timeSoFar) ? lastArrivalTime : timeSoFar;
 //        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + lastArrivalTime;
-    //out-of-order
+        //out-of-order
 //        lastArrivalTime = 1 + (int) (ran.nextFloat() * 9) + timeSoFar;
 
         if (lastArrivalTime > timeSoFar) {
