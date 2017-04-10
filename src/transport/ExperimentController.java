@@ -73,6 +73,10 @@ public class ExperimentController {
     }
 
 //==================EXPERIMENT=====================================
+    /**
+     * Run all 4 experiments
+     * @param outputFilePath The path of the output file
+     */
     public void runExperiments(String outputFilePath) {
         int runs = 50;
         int numTrialsPerRun = 6;
