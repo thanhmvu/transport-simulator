@@ -127,7 +127,7 @@ public class ExperimentController {
         //control vars
         float lossProb = 0.10f;
         float corrProb = 0.10f;
-        int windowsSize = 4;
+        int windowsSize = 7;
 
         //run exp
         for (int i = 0; i < numRuns; i++) {
@@ -169,7 +169,7 @@ public class ExperimentController {
         //control vars
         int timeBtwSends = 10;
         float corrProb = 0f;
-        int windowsSize = 4;
+        int windowsSize = 7;
 
         //run exp
         for (int i = 0; i < numRuns; i++) {
@@ -208,7 +208,7 @@ public class ExperimentController {
         //control vars
         int timeBtwSends = 10;
         float lossProb = 0f;
-        int windowsSize = 4;
+        int windowsSize = 7;
 
         //run exp
         for (int i = 0; i < numRuns; i++) {
