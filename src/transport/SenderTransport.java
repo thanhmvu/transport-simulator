@@ -31,7 +31,7 @@ public class SenderTransport {
     public void initialize() {
         base = 0;
         nextSeqNum = 0;
-        timeout = 20; // avg RTT = 10 time units
+        timeout = 30; // = avgRTT + 4 * DevRTT = 10 + 4 * 5
         queue = new LinkedList<>();
         unackedMsgs = new LinkedList<>();
         cntDupAcks = 0;
@@ -157,6 +157,7 @@ public class SenderTransport {
             } else { // duplicate ack
                 cntDupAcks++;
                 if (cntDupAcks == 3) { // fast retransmit
+                    debug_print("Fast retransmit");
                     cntDupAcks = 0; // reset cnt
                     resendFirstMsg();
                 }
