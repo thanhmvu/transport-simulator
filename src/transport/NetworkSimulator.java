@@ -45,7 +45,7 @@ public class NetworkSimulator {
     }
 
     /**
-     *
+     * Run the simulator
      * @param fileName file with messages
      * @param timeBetweenMsg time between messages
      * @param lossProb loss probability

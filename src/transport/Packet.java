@@ -86,6 +86,11 @@ public class Packet {
 
     }
     
+    /**
+     * Create a new packet that is a copy of the old packet
+     * @return a cloned packet
+     */
+    @Override
     public Packet clone(){
         return new Packet(msg.clone(),seqnum,acknum);
     }
